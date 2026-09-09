@@ -3,111 +3,318 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Turnero Hospital — Simulador</title>
-<link rel="stylesheet" href="style.css">
+<title>Hospital San Rafael — Citas y Urgencias</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand">
-        <span class="brand-mark">+</span>
-        <div>
-          <h1>Turnero General</h1>
-          <p>Hospital Regional · Módulo de simulación</p>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<header class="topbar">
+  <div class="topbar__brand">
+    <svg class="brand__mark" width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+      <circle cx="17" cy="17" r="16" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M6 18h4l2.2-6 3 11 2.4-8.5L20 18h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+    <div class="brand__text">
+      <span class="brand__name">Hospital San Rafael</span>
+      <span class="brand__tag">Citas &amp; urgencias</span>
+    </div>
+  </div>
+
+  <nav class="topbar__nav" aria-label="Secciones principales">
+    <button class="navlink is-active" data-view="inicio" type="button">Inicio</button>
+    <button class="navlink" data-view="reservar" type="button">Reservar cita</button>
+    <button class="navlink" data-view="emergencias" type="button">Urgencias</button>
+    <button class="navlink" data-view="mis-citas" type="button">Mis citas</button>
+  </nav>
+
+  <button class="btn-help" type="button" id="btnAyuda" aria-haspopup="dialog" title="Ayuda del sistema">
+    <span aria-hidden="true">?</span><span class="sr-only">Ayuda</span>
+  </button>
+</header>
+
+<main id="contenido">
+
+  <!-- ================= INICIO ================= -->
+  <section class="view is-active" id="view-inicio" aria-labelledby="inicio-h1">
+    <div class="hero">
+      <div class="hero__copy">
+        <p class="eyebrow-plain">Sistema de gestión de citas</p>
+        <h1 id="inicio-h1">Su cita, sin filas ni sorpresas.</h1>
+        <p class="hero__lede">Reserve con un especialista disponible en segundos, o regístrese en el módulo de urgencias si necesita atención prioritaria en este momento.</p>
+        <div class="hero__actions">
+          <button class="btn btn-primary" data-goto="reservar" type="button">Reservar una cita</button>
+          <button class="btn btn-outline-red" data-goto="emergencias" type="button">Registrar una urgencia</button>
         </div>
       </div>
-      <div class="header-right">
-        <div class="speed-control" role="group" aria-label="Velocidad de simulación">
-          <span class="speed-label">Velocidad</span>
-          <button type="button" class="speed-btn active" data-speed="1">1x</button>
-          <button type="button" class="speed-btn" data-speed="5">5x</button>
-          <button type="button" class="speed-btn" data-speed="10">10x</button>
-        </div>
-        <div class="clock" id="clock">--:--:--</div>
+      <div class="hero__panel" aria-hidden="true">
+        <div class="hero__panel-row"><span>Lun</span><span>08:00–13:00</span></div>
+        <div class="hero__panel-row"><span>Lun</span><span>16:00–17:00</span></div>
+        <div class="hero__panel-row is-taken"><span>Mar</span><span>Ocupado</span></div>
+        <div class="hero__panel-row is-open"><span>Mié</span><span>09:00</span></div>
       </div>
     </div>
-  </header>
 
-  <main class="layout">
-
-    <!-- Panel izquierdo: ventanillas de atención -->
-    <section class="panel windows-panel" aria-label="Ventanillas de atención">
-      <h2>Ventanillas</h2>
-      <div class="windows" id="windows"></div>
-
-      <div class="stats" aria-label="Estadísticas de la simulación">
-        <h3>Estadísticas</h3>
-        <dl class="stats-grid">
-          <div class="stat">
-            <dt>Atendidos</dt>
-            <dd id="statAttended">0</dd>
-          </div>
-          <div class="stat">
-            <dt>Espera promedio</dt>
-            <dd id="statAvgWait">0:00</dd>
-          </div>
-          <div class="stat">
-            <dt>Atención promedio</dt>
-            <dd id="statAvgAttention">0:00</dd>
-          </div>
-          <div class="stat">
-            <dt>Tiempo simulado</dt>
-            <dd id="statElapsed">0:00</dd>
-          </div>
-        </dl>
+    <div class="stat-row" id="statRow">
+      <div class="stat-card">
+        <span class="stat-card__num" id="statEspecialistas">6</span>
+        <span class="stat-card__label">Especialistas activos</span>
       </div>
-    </section>
-
-    <!-- Panel central: fila de espera -->
-    <section class="panel queue-panel" aria-label="Fila de espera">
-      <div class="panel-head">
-        <h2>Fila de espera</h2>
-        <span class="count" id="queueCount">0 pacientes</span>
+      <div class="stat-card">
+        <span class="stat-card__num" id="statCitasHoy">0</span>
+        <span class="stat-card__label">Citas confirmadas hoy</span>
       </div>
-      <ol class="queue-list" id="queueList">
-        <li class="empty-state">No hay pacientes en espera. Añade uno abajo.</li>
-      </ol>
-    </section>
+      <div class="stat-card">
+        <span class="stat-card__num" id="statEnCola">0</span>
+        <span class="stat-card__label">Personas en espera de urgencias</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__num" id="statTiempoProm">—</span>
+        <span class="stat-card__label">Min. promedio por atención</span>
+      </div>
+    </div>
 
-    <!-- Panel derecho: registrar paciente -->
-    <section class="panel form-panel" aria-label="Registrar paciente">
-      <h2>Registrar paciente</h2>
-      <form id="patientForm">
-        <label for="patientName">Nombre</label>
-        <input type="text" id="patientName" placeholder="Ej. María López" autocomplete="off" required>
+    <div class="info-columns">
+      <article class="info-col">
+        <h2>Cómo funciona</h2>
+        <ol class="steps-plain">
+          <li>Elija especialidad, doctor y un horario que esté realmente disponible.</li>
+          <li>Confirme sus datos antes de enviar la solicitud.</li>
+          <li>Reciba un folio de confirmación y consúltelo cuando quiera.</li>
+        </ol>
+      </article>
+      <article class="info-col">
+        <h2>Reglas del sistema</h2>
+        <ul class="steps-plain">
+          <li>No se aceptan fechas pasadas ni horarios fuera del turno del doctor.</li>
+          <li>Un mismo horario no puede reservarse dos veces.</li>
+          <li>Las urgencias se atienden por gravedad y, en empate, por orden de llegada.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
 
-        <label for="patientPriority">Tipo de solicitud</label>
-        <select id="patientPriority">
-          <option value="normal">Consulta general</option>
-          <option value="priority">Prioritario (urgencia leve, adulto mayor, embarazo)</option>
-        </select>
+  <!-- ================= RESERVAR CITA ================= -->
+  <section class="view" id="view-reservar" aria-labelledby="reservar-h1">
+    <h1 id="reservar-h1">Reservar cita</h1>
 
-        <button type="submit">Tomar turno</button>
-        <p class="hint">El tiempo de atención se calcula al azar entre 3 y 15 minutos, como en consulta real.</p>
+    <ol class="stepper" id="stepper">
+      <li class="stepper__item is-current" data-step="1"><span class="stepper__num">1</span>Datos del paciente</li>
+      <li class="stepper__item" data-step="2"><span class="stepper__num">2</span>Especialista y horario</li>
+      <li class="stepper__item" data-step="3"><span class="stepper__num">3</span>Confirmar</li>
+    </ol>
 
-        <label class="checkbox-row">
-          <input type="checkbox" id="soundToggle" checked>
-          Sonido al llamar a un paciente
-        </label>
+    <form id="formCita" novalidate>
+
+      <!-- Paso 1 -->
+      <fieldset class="step-panel is-current" data-step="1">
+        <legend>Datos del paciente</legend>
+        <p class="field-help" style="margin:-.4rem 0 1rem;">Solo pedimos su CURP. Si ya se registró antes, recuperamos sus datos automáticamente.</p>
+        <div class="field" style="max-width:340px;">
+          <label for="fCurp">CURP</label>
+          <input type="text" id="fCurp" name="curp" maxlength="18" placeholder="ABCD990101HTSXXX01" autocomplete="off" style="text-transform:uppercase;letter-spacing:.03em;">
+          <p class="field-error" id="err-fCurp" role="alert"></p>
+        </div>
+
+        <div class="patient-panel" id="patientPanel" hidden></div>
+
+        <div class="step-actions">
+          <span></span>
+          <button class="btn btn-primary" type="button" data-next="2">Continuar</button>
+        </div>
+      </fieldset>
+
+      <!-- Paso 2 -->
+      <fieldset class="step-panel" data-step="2">
+        <legend>Especialista y horario</legend>
+        <div class="field-grid">
+          <div class="field">
+            <label for="fEspecialidad">Especialidad</label>
+            <select id="fEspecialidad" name="especialidad">
+              <option value="">Seleccione una especialidad</option>
+            </select>
+            <p class="field-error" id="err-fEspecialidad" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="fDoctor">Doctor(a)</label>
+            <select id="fDoctor" name="doctor" disabled>
+              <option value="">Elija primero una especialidad</option>
+            </select>
+            <p class="field-error" id="err-fDoctor" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="fFecha">Fecha</label>
+            <input type="date" id="fFecha" name="fecha" disabled>
+            <p class="field-help" id="help-fFecha">Elija primero un doctor.</p>
+            <p class="field-error" id="err-fFecha" role="alert"></p>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="field-label-plain">Horario disponible</span>
+          <div class="slot-grid" id="slotGrid" aria-live="polite">
+            <p class="slot-empty">Complete especialidad, doctor y fecha para ver horarios.</p>
+          </div>
+          <p class="field-error" id="err-fHora" role="alert"></p>
+        </div>
+
+        <div class="step-actions">
+          <button class="btn btn-ghost" type="button" data-prev="1">Atrás</button>
+          <button class="btn btn-primary" type="button" data-next="3">Continuar</button>
+        </div>
+      </fieldset>
+
+      <!-- Paso 3 -->
+      <fieldset class="step-panel" data-step="3">
+        <legend>Confirmar solicitud</legend>
+        <div class="review-card" id="reviewCard"></div>
+        <div class="step-actions">
+          <button class="btn btn-ghost" type="button" data-prev="2">Atrás, quiero corregir algo</button>
+          <button class="btn btn-primary" type="submit">Confirmar cita</button>
+        </div>
+      </fieldset>
+
+    </form>
+
+    <div class="confirm-panel" id="confirmPanel" hidden>
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true"><circle cx="20" cy="20" r="19" stroke="#0E6E6E" stroke-width="1.6"/><path d="M12 21l5 5 11-13" stroke="#0E6E6E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h2>Cita confirmada</h2>
+      <p id="confirmText"></p>
+      <p class="confirm-folio" id="confirmFolio"></p>
+      <button class="btn btn-outline" type="button" id="btnNuevaCita">Reservar otra cita</button>
+    </div>
+  </section>
+
+  <!-- ================= EMERGENCIAS ================= -->
+  <section class="view" id="view-emergencias" aria-labelledby="emer-h1">
+    <h1 id="emer-h1">Ventanillas de atención</h1>
+    <p class="view-lede">Ambas ventanillas atienden dos tipos de fila: urgencias registradas aquí y citas ya reservadas cuyo paciente registra su llegada. Las urgencias siempre pasan primero; entre iguales, atiende a quien llegó antes.</p>
+
+    <div class="card" id="citasHoyCard" style="margin-bottom:1.6rem;">
+      <div class="card__head">
+        <h2>Citas de hoy</h2>
+        <span class="pill">Registre la llegada para pasar a ventanilla</span>
+      </div>
+      <ul class="queue-list" id="citasHoyList">
+        <li class="queue-empty">No hay citas confirmadas para hoy.</li>
+      </ul>
+    </div>
+
+    <div class="emer-layout">
+      <form class="card" id="formUrgencia">
+        <h2>Registrar urgencia</h2>
+        <div class="field">
+          <label for="uNombre">Nombre completo</label>
+          <input type="text" id="uNombre" name="nombre" placeholder="Nombre del paciente">
+          <p class="field-error" id="err-uNombre" role="alert"></p>
+        </div>
+        <div class="field">
+          <label for="uEdad">Edad</label>
+          <input type="number" id="uEdad" name="edad" min="0" max="120" inputmode="numeric">
+          <p class="field-error" id="err-uEdad" role="alert"></p>
+        </div>
+        <div class="field">
+          <label for="uMotivo">Motivo de consulta</label>
+          <select id="uMotivo" name="motivo">
+            <option value="">Seleccione un motivo</option>
+            <option>Dolor en el pecho</option>
+            <option>Dificultad para respirar</option>
+            <option>Fractura o golpe fuerte</option>
+            <option>Herida con sangrado</option>
+            <option>Fiebre alta</option>
+            <option>Reacción alérgica</option>
+            <option>Malestar general</option>
+            <option>Otro</option>
+          </select>
+          <p class="field-error" id="err-uMotivo" role="alert"></p>
+        </div>
+        <div class="field">
+          <span class="field-label-plain">Nivel de gravedad</span>
+          <div class="priority-picker" id="priorityPicker"></div>
+          <p class="field-error" id="err-uNivel" role="alert"></p>
+        </div>
+        <button class="btn btn-danger" type="submit">Agregar a la fila</button>
       </form>
 
-      <div class="heuristics-note">
-        <h3>Por qué está diseñado así</h3>
-        <ul>
-          <li><strong>Estado visible:</strong> el reloj, el tiempo restante y la fila se actualizan en vivo.</li>
-          <li><strong>Prevención de errores:</strong> una ventanilla no puede tomar otro turno hasta terminar el actual.</li>
-          <li><strong>Control del usuario:</strong> se puede registrar o quitar un turno en cualquier momento.</li>
-          <li><strong>Prioridad clara:</strong> los turnos prioritarios se distinguen por color y suben en la fila.</li>
-        </ul>
+      <div class="emer-right">
+        <div class="ventanillas" id="ventanillas"></div>
+
+        <div class="card">
+          <div class="card__head">
+            <h2>Fila de espera</h2>
+            <span class="pill" id="promedioPill">Promedio: — min por persona</span>
+          </div>
+          <ul class="queue-list" id="queueList">
+            <li class="queue-empty">No hay pacientes en espera.</li>
+          </ul>
+        </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-  </main>
+  <!-- ================= MIS CITAS ================= -->
+  <section class="view" id="view-mis-citas" aria-labelledby="mis-h1">
+    <h1 id="mis-h1">Consultar o cancelar una cita</h1>
+    <p class="view-lede">Busque por su CURP o por el folio de confirmación de la cita.</p>
 
-  <footer class="footer">
-    Simulador de fila con prioridad · tiempos aleatorios 3–15 min · 2 ventanillas
-  </footer>
+    <form class="search-row" id="formBuscar">
+      <div class="field">
+        <label for="bBusqueda">CURP o folio</label>
+        <input type="text" id="bBusqueda" placeholder="ABCD990101HTSXXX01 o C-260908-0001" style="text-transform:uppercase;">
+      </div>
+      <button class="btn btn-primary" type="submit">Buscar</button>
+    </form>
+
+    <div id="resultadosCitas" class="resultados"></div>
+  </section>
+
+</main>
+
+<!-- Modal de ayuda -->
+<div class="modal-backdrop" id="modalAyuda" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ayuda-h2">
+    <button class="modal__close" id="cerrarAyuda" type="button" aria-label="Cerrar ayuda">✕</button>
+    <h2 id="ayuda-h2">Ayuda</h2>
+    <div class="modal__scroll">
+      <h3>Reservar una cita</h3>
+      <p>Escriba su CURP: si ya se registró antes, el sistema recupera sus datos automáticamente. Si es la primera vez, pedirá nombre, teléfono y correo una sola vez. Luego elija especialidad, doctor y un horario resaltado en verde: esos son los únicos disponibles.</p>
+      <h3>Ventanillas: urgencias y citas</h3>
+      <p>Registre una urgencia con su nivel de gravedad, o registre la llegada de una cita ya reservada para el día de hoy. Ambas entran a la misma fila; las urgencias siempre pasan primero. Cada ventanilla atiende a una persona a la vez y no puede llamar a la siguiente hasta terminar con la actual.</p>
+      <h3>Cancelar una cita</h3>
+      <p>Vaya a «Mis citas», busque por CURP o folio y presione «Cancelar cita». Se le pedirá confirmar antes de aplicar el cambio.</p>
+      <details class="heuristics-note">
+        <summary>Heurísticas de usabilidad aplicadas en este sistema</summary>
+        <ul>
+          <li><strong>Visibilidad del estado del sistema:</strong> indicador de pasos, mensajes emergentes y temporizadores en vivo de las ventanillas.</li>
+          <li><strong>Coherencia entre el sistema y el mundo real:</strong> lenguaje clínico común (folio, ventanilla, gravedad) y colores estándar de semáforo.</li>
+          <li><strong>Control y libertad del usuario:</strong> se puede retroceder en el formulario, corregir datos antes de confirmar, y cancelar una cita ya hecha.</li>
+          <li><strong>Consistencia y estándares:</strong> mismos estilos de botón, campo y color en todas las secciones.</li>
+          <li><strong>Prevención de errores:</strong> solo se muestran horarios realmente disponibles; no se puede enviar el formulario con datos inválidos.</li>
+          <li><strong>Reconocer en vez de recordar:</strong> horarios y prioridades se eligen de listas visibles, no se escriben de memoria.</li>
+          <li><strong>Ayuda para reconocer, diagnosticar y corregir errores:</strong> mensajes de error específicos junto a cada campo.</li>
+          <li><strong>Ayuda y documentación:</strong> este panel de ayuda, disponible desde cualquier sección.</li>
+        </ul>
+      </details>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmaciones -->
+<div class="modal-backdrop" id="modalConfirmar" hidden>
+  <div class="modal modal--sm" role="alertdialog" aria-modal="true" aria-labelledby="confirmar-h2">
+    <h2 id="confirmar-h2" id="confirmarTitulo">¿Confirmar acción?</h2>
+    <p id="confirmarTexto"></p>
+    <div class="modal__actions">
+      <button class="btn btn-ghost" id="confirmarCancelar" type="button">No, regresar</button>
+      <button class="btn btn-danger" id="confirmarAceptar" type="button">Sí, continuar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack" aria-live="polite"></div>
 
 <script src="script.js"></script>
 </body>
